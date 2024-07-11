@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLay
 app = QApplication([])
 main = QWidget()
 main.setWindowTitle("Starter App")
-main.resize(600,500)
+main.resize(600,600)
 
 # Create app objects
 
