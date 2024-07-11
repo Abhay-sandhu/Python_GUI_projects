@@ -12,7 +12,7 @@ class Calculator(QWidget):
         # Calculator objects
         self.display = QLineEdit()
         self.display.setReadOnly(True)
-        self.display.setFont(QFont("Helvetica", 32))
+        self.display.setFont(QFont("Helvetica", 28))
         self.buttons = [
                 '1','2','3','/',
                 '4','5','6','*',
@@ -56,7 +56,7 @@ class Calculator(QWidget):
                 expression = str(eval(self.display.text()))
                 self.display.setText(expression)
             except Exception as e:
-                self.display.setText(f"Error:{e}")
+                self.display.setText("Error")
         elif self.display.text().startswith("Error"):
             self.display.setText(txt)
         else:
@@ -67,7 +67,7 @@ class Calculator(QWidget):
         row, col = 0, 0
         for btn_text in self.buttons:
             self.button_dict[btn_text] = QPushButton(btn_text)
-            self.button_dict[btn_text].setStyleSheet("QPushButton{font: 25pt Comic Sans MS; padding: 10px}")
+            self.button_dict[btn_text].setStyleSheet("QPushButton{font: 18pt Comic Sans MS; padding: 10px}")
             self.button_dict[btn_text].clicked.connect(self.button_clicked)
             self.grid.addWidget(self.button_dict[btn_text], row, col)
             col += 1
@@ -97,6 +97,6 @@ class Calculator(QWidget):
 if __name__ == '__main__':
     app = QApplication([])
     main = Calculator()
-    main.setStyleSheet("QWidget{background-color: #31acac }")
+    main.setStyleSheet("QWidget{background-color: #f8f8f8}")
     main.show()
     app.exec_()
