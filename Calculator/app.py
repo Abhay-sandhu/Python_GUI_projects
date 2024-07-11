@@ -1,16 +1,18 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QKeyEvent
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QHBoxLayout, QVBoxLayout
+from numpy import delete
 
 class Calculator(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Simple Calculator")
-        self.resize(250,300)
+        self.resize(400,350)
 
         # Calculator objects
         self.display = QLineEdit()
         self.display.setReadOnly(True)
+        self.display.setFont(QFont("Helvetica", 32))
         self.buttons = [
                 '1','2','3','/',
                 '4','5','6','*',
@@ -20,6 +22,8 @@ class Calculator(QWidget):
         self.button_dict = {}
         self.clear = QPushButton("Clear")
         self.delete = QPushButton("<")
+        self.clear.setStyleSheet("QPushButton{font: 25pt Comic Sans MS; padding: 10px}")
+        self.delete.setStyleSheet("QPushButton{font: 25pt Comic Sans MS; padding: 10px}")
         
         # Calculator Layout
         self.master_layout = QVBoxLayout()
@@ -30,6 +34,7 @@ class Calculator(QWidget):
         self.master_layout.addWidget(self.display)
         self.master_layout.addLayout(self.grid)
         self.master_layout.addLayout(self.cl_del_row)
+        self.master_layout.setContentsMargins(25,25,25,25)
         self.setLayout(self.master_layout)
 
         # button event handlers
@@ -62,6 +67,7 @@ class Calculator(QWidget):
         row, col = 0, 0
         for btn_text in self.buttons:
             self.button_dict[btn_text] = QPushButton(btn_text)
+            self.button_dict[btn_text].setStyleSheet("QPushButton{font: 25pt Comic Sans MS; padding: 10px}")
             self.button_dict[btn_text].clicked.connect(self.button_clicked)
             self.grid.addWidget(self.button_dict[btn_text], row, col)
             col += 1
@@ -91,5 +97,6 @@ class Calculator(QWidget):
 if __name__ == '__main__':
     app = QApplication([])
     main = Calculator()
+    main.setStyleSheet("QWidget{background-color: #31acac }")
     main.show()
     app.exec_()
