@@ -1,12 +1,12 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtGui import QFont, QKeyEvent
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QHBoxLayout, QVBoxLayout
 
 class Calculator(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Simple Calculator")
-        self.resize(200,400)
+        self.resize(250,300)
 
         # Calculator objects
         self.display = QLineEdit()
@@ -68,20 +68,19 @@ class Calculator(QWidget):
             if col > 3:
                 row +=1
                 col = 0
-    
-    def keyPressEvent(self, event):
-        key = event.key()
-        num_pad_keys = [Qt.Key_1, Qt.Key_2, Qt.Key_3, Qt.Key_4, Qt.Key_5, Qt.Key_6, Qt.Key_7, # type: ignore
-                   Qt.Key_8, Qt.Key_9, Qt.Key_0, Qt.Key_Period, Qt.Key_Plus, Qt.Key_Minus, # type: ignore
-                   Qt.Key_Asterisk, Qt.Key_Slash] # type: ignore
-        result_keys = [Qt.Key_Equal, Qt.Key_Return, Qt.Key_Enter] # type: ignore
+
+
+    def keyPressEvent(self, event: QKeyEvent):
+        key = event.text()
+        num_pad_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0','+', '-', '*', '/', '.'] 
+        result_keys = ['=','\r', '\n'] 
         if key in num_pad_keys:
-            self.button_dict[chr(key)].click()
+            self.button_dict[key].click()
         elif key in result_keys:
-            self.button_dict['='].click() 
-        elif key in [Qt.Key_Backspace, Qt.Key_Delete]: # type: ignore
+            self.button_dict['=', '\n', '\r'].click() 
+        elif event.key() in [Qt.Key_Backspace, Qt.Key_Delete]: # type: ignore
             self.delete.click()
-        elif key == Qt.Key_C: # type: ignore
+        elif key.lower() == 'c':
             self.clear.click()
         else:
             super().keyPressEvent(event)
@@ -89,7 +88,8 @@ class Calculator(QWidget):
 
 
 # Execute application
-app = QApplication([])
-main = Calculator()
-main.show()
-app.exec_()
+if __name__ == '__main__':
+    app = QApplication([])
+    main = Calculator()
+    main.show()
+    app.exec_()
