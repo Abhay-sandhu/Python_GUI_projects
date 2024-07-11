@@ -6,7 +6,7 @@ import csv
 app = QApplication([])
 main = QWidget()
 main.setWindowTitle("Starter App")
-main.resize(600,600)
+main.resize(400,300)
 
 # Create app objects
 title_text = QLabel('Random Word Generator')
@@ -14,9 +14,9 @@ text1 = QLabel("1?")
 text2 = QLabel("2?")
 text3 = QLabel("3?")
 
-button1 = QPushButton("btn1")
-button2 = QPushButton("btn2")
-button3 = QPushButton("btn3")
+button1 = QPushButton("Click me")
+button2 = QPushButton("Click me")
+button3 = QPushButton("Click me")
 
 # Design app
 master = QVBoxLayout()
@@ -30,9 +30,9 @@ row2.addWidget(text1, alignment=Qt.AlignCenter)  # type: ignore
 row2.addWidget(text2, alignment=Qt.AlignCenter) # type: ignore
 row2.addWidget(text3, alignment=Qt.AlignCenter) # type: ignore
 
-row3.addWidget(button1, alignment=Qt.AlignCenter)
-row3.addWidget(button2, alignment=Qt.AlignCenter)
-row3.addWidget(button3, alignment=Qt.AlignCenter)
+row3.addWidget(button1)
+row3.addWidget(button2)
+row3.addWidget(button3)
 
 master.addLayout(row1)
 master.addLayout(row2)
@@ -41,7 +41,7 @@ master.addLayout(row3)
 main.setLayout(master)
 
 # App Functionality
-with open("random_words_4000.csv", 'r') as words:
+with open(r"starter_app\random_words_4000.csv", 'r') as words:
     word_list = list(csv.reader(words, delimiter=','))
 def random_word1():
     word = choice(word_list)[0]
