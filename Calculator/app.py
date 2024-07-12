@@ -75,15 +75,15 @@ class Calculator(QWidget):
                 row +=1
                 col = 0
 
-
+# Does not work properly
     def keyPressEvent(self, event: QKeyEvent):
         key = event.text()
         num_pad_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0','+', '-', '*', '/', '.'] 
-        result_keys = ['=','\r', '\n'] 
+        result_key = ['='] 
         if key in num_pad_keys:
             self.button_dict[key].click()
-        elif key in result_keys:
-            self.button_dict['=', '\n', '\r'].click() 
+        elif key in result_key:
+            self.button_dict[key].click() 
         elif event.key() in [Qt.Key_Backspace, Qt.Key_Delete]: # type: ignore
             self.delete.click()
         elif key.lower() == 'c':
