@@ -1,7 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QKeyEvent
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QLabel, QLineEdit, QGridLayout, QVBoxLayout, QHBoxLayout, QVBoxLayout
-from numpy import delete
 
 class Calculator(QWidget):
     def __init__(self):
