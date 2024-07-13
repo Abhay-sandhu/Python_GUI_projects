@@ -29,6 +29,7 @@ class Image_Editor(QWidget):
         self.image_list = QListWidget()
         self.filter_box = QComboBox()
         self.buttons = [
+            "Original",
             "Left",
             "Right",
             "Mirror",
