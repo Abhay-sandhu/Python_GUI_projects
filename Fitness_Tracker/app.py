@@ -36,24 +36,27 @@ class Fitness_Tracker(QWidget):
 
         self.cal_label = QLabel("Cal")
         self.cal_edit = QLineEdit()
+        self.cal_edit.setPlaceholderText("Enter Calories Burned")
 
         self.km_label = QLabel("KM")
         self.km_edit = QLineEdit()
+        self.km_edit.setPlaceholderText("Enter Distance(KMs) ran")
 
         self.desc_label = QLabel("Desc")
         self.desc_edit = QLineEdit()
+        self.desc_edit.setPlaceholderText("Enter Activity Description")
 
         self.dark_mode = QCheckBox("Dark Mode")
 
-        self.add_button = QPushButton("Add")
-        self.delete_button = QPushButton("Delete")
+        self.add_button = QPushButton("Add to Table")
+        self.delete_button = QPushButton("Delete selected row")
 
-        self.submit_button = QPushButton("Submit")
-        self.clear_button = QPushButton("Clear")
+        self.submit_button = QPushButton("Update Graph")
+        self.clear_button = QPushButton("Clear all")
 
         self.figure = plt.figure()
-        self.figure.set_facecolor("#f0f0f0")
         self.canvas = FigureCanvas(self.figure)
+        self.ax = self.figure.subplots()
 
         self.table = QTableWidget()
         self.table.setColumnCount(5)
@@ -105,19 +108,21 @@ class Fitness_Tracker(QWidget):
         self.column2.addWidget(self.canvas, 70)
         self.column2.addWidget(self.table, 30)
 
-        self.master_layout.addLayout(self.column1, 25)
-        self.master_layout.addLayout(self.column2, 75)
+        self.master_layout.addLayout(self.column1, 30)
+        self.master_layout.addLayout(self.column2, 70)
         self.setLayout(self.master_layout)
 
         self.event_handler()
         self.load_table()
         self.calc_calories()
+        self.apply_styles()
 
     def event_handler(self):
         self.add_button.clicked.connect(self.add_btn)
         self.delete_button.clicked.connect(self.del_btn)
         self.submit_button.clicked.connect(self.calc_calories)
         self.clear_button.clicked.connect(self.clear_btn)
+        self.dark_mode.stateChanged.connect(self.dark_mode_toggle)
 
     def load_table(self):
         self.table.setRowCount(0)
@@ -202,23 +207,129 @@ class Fitness_Tracker(QWidget):
         try:
             min_calories = min(calories)
             max_calories = max(calories)
-            normalized_calories = [ (calorie - min_calories)/(max_calories - min_calories) for calorie in calories]
-            
-            #plt.style.use('seaborn-v0_8-darkgrid')
-            ax = self.figure.subplots()
-            ax.scatter(distances, calories, c=normalized_calories, cmap='viridis', label='Data points')
-            ax.grid()
-            ax.figure.set_facecolor('#f0f0f0')
-            cbar = ax.figure.colorbar(ax.collections[0], label='Normalized Calories')
-            ax.set_xlabel("Distance (KM)")
-            ax.set_ylabel("Calories")
-            ax.set_title("Calories Burnt VS Distance Run")
-            ax.legend()
+            normalized_calories = [
+                (calorie - min_calories) / (max_calories - min_calories)
+                for calorie in calories
+            ]
+
+            # plt.style.use('seaborn-v0_8-darkgrid')
+            self.ax.scatter(
+                distances,
+                calories,
+                c=normalized_calories,
+                cmap="viridis",
+                label="Data points",
+            )
+            self.ax.grid()
+            # self.ax.figure.set_facecolor('#f0f0f0')
+            cbar = self.ax.figure.colorbar(self.ax.collections[0], label="Normalized Calories")
+            self.ax.set_xlabel("Distance (KM)")
+            self.ax.set_ylabel("Calories")
+            self.ax.set_title("Calories Burnt VS Distance Run")
+            self.ax.legend()
             self.canvas.draw()
         except Exception as e:
             print(f"Error: {e}")
             QMessageBox.warning(self, "Warning", "Please enter some data first")
 
+    def dark_mode_toggle(self):
+        self.apply_styles()
+
+    def apply_styles(self):
+        if self.dark_mode.isChecked():
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #1e1e1e;
+                    color: #d3d3d3;
+                }
+                QLineEdit, QDateEdit, QLabel, QTableWidget,{
+                    background-color: #2d2d2d;
+                    color: #d3d3d3;
+                    border: 1px solid #444444;
+                    padding: 5px;
+                    border-radius: 5px;
+                }
+                QHeaderView::section {
+                    background-color: #3d3d3d;
+                    color: #d3d3d3;
+                    padding: 5px;
+                    border: none;
+                    border-bottom: 1px solid #444444;
+                }
+                QCheckBox {
+                    background-color: #1e1e1e;
+                    color: #d3d3d3;
+                }
+                QPushButton {
+                background-color: #3aafa9;
+                color: #d3d3d3;
+                border: 1px solid #444444;
+                padding: 5px;
+                border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #2b7a78;
+                }
+            """)
+            self.figure.patch.set_facecolor('#1e1e1e')
+            self.ax.set_facecolor('#1e1e1e')
+            self.ax.tick_params(colors='#d3d3d3')
+            self.ax.yaxis.label.set_color('#d3d3d3')
+            self.ax.xaxis.label.set_color('#d3d3d3')
+            self.ax.title.set_color('#d3d3d3')
+            self.ax.spines['top'].set_color('#d3d3d3')
+            self.ax.spines['bottom'].set_color('#d3d3d3')
+            self.ax.spines['left'].set_color('#d3d3d3')
+            self.ax.spines['right'].set_color('#d3d3d3')
+        else:
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #f0f0f0;
+                    color: #2c2c2c;
+                }
+                QLineEdit, QDateEdit, QLabel, QTableWidget{
+                    background-color: #ffffff;
+                    color: #2c2c2c;
+                    border: 1px solid #cccccc;
+                    padding: 5px;
+                    border-radius: 5px;
+                }
+                QHeaderView::section {
+                    background-color: #e0e0e0;
+                    color: #2c2c2c;
+                    padding: 5px;
+                    border: none;
+                    border-bottom: 1px solid #cccccc;
+                }
+                QCheckBox {
+                    background-color: #f0f0f0;
+                    color: #2c2c2c;
+                }
+                QPushButton {
+                background-color: #3aafa9;
+                color: #ffffff;
+                border: 1px solid #cccccc;
+                padding: 5px;
+                border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #2b7a78;
+                }
+            """)
+            self.figure.patch.set_facecolor('#f0f0f0')
+            self.ax.set_facecolor('#f0f0f0')
+            self.ax.tick_params(colors='#2c2c2c')
+            self.ax.yaxis.label.set_color('#2c2c2c')
+            self.ax.xaxis.label.set_color('#2c2c2c')
+            self.ax.title.set_color('#2c2c2c')
+            self.ax.spines['top'].set_color('#2c2c2c')
+            self.ax.spines['bottom'].set_color('#2c2c2c')
+            self.ax.spines['left'].set_color('#2c2c2c')
+            self.ax.spines['right'].set_color('#2c2c2c')
+
+        self.canvas.draw()
+
+            
 
 # Database Instantiation and Connection
 db = QSqlDatabase.addDatabase("QSQLITE")
