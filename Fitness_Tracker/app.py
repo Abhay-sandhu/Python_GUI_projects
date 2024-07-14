@@ -52,6 +52,7 @@ class Fitness_Tracker(QWidget):
         self.clear_button = QPushButton("Clear")
 
         self.figure = plt.figure()
+        self.figure.set_facecolor("#f0f0f0")
         self.canvas = FigureCanvas(self.figure)
 
         self.table = QTableWidget()
@@ -110,11 +111,12 @@ class Fitness_Tracker(QWidget):
 
         self.event_handler()
         self.load_table()
+        self.calc_calories()
 
     def event_handler(self):
         self.add_button.clicked.connect(self.add_btn)
         self.delete_button.clicked.connect(self.del_btn)
-        self.submit_button.clicked.connect(self.submit_btn)
+        self.submit_button.clicked.connect(self.calc_calories)
         self.clear_button.clicked.connect(self.clear_btn)
 
     def load_table(self):
@@ -178,9 +180,6 @@ class Fitness_Tracker(QWidget):
                 # QMessageBox.information(self, "Delete Successful", "Data deleted successfully")
                 self.load_table()
 
-    def submit_btn(self):
-        pass
-
     def clear_btn(self):
         self.date_edit.setDate(QDate.currentDate())
         self.cal_edit.clear()
@@ -189,6 +188,36 @@ class Fitness_Tracker(QWidget):
         self.table.setRowCount(0)
         self.figure.clear()
         self.canvas.draw()
+
+    def calc_calories(self):
+        distances = []
+        calories = []
+
+        query = QSqlQuery()
+        query.prepare("SELECT Distance, Calories FROM fitness ORDER BY Calories ASC")
+        if query.exec_():
+            while query.next():
+                distances.append(query.value(0))
+                calories.append(query.value(1))
+        try:
+            min_calories = min(calories)
+            max_calories = max(calories)
+            normalized_calories = [ (calorie - min_calories)/(max_calories - min_calories) for calorie in calories]
+            
+            #plt.style.use('seaborn-v0_8-darkgrid')
+            ax = self.figure.subplots()
+            ax.scatter(distances, calories, c=normalized_calories, cmap='viridis', label='Data points')
+            ax.grid()
+            ax.figure.set_facecolor('#f0f0f0')
+            cbar = ax.figure.colorbar(ax.collections[0], label='Normalized Calories')
+            ax.set_xlabel("Distance (KM)")
+            ax.set_ylabel("Calories")
+            ax.set_title("Calories Burnt VS Distance Run")
+            ax.legend()
+            self.canvas.draw()
+        except Exception as e:
+            print(f"Error: {e}")
+            QMessageBox.warning(self, "Warning", "Please enter some data first")
 
 
 # Database Instantiation and Connection
