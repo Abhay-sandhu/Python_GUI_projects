@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import sys
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 from PyQt5.QtCore import QDate
@@ -18,9 +19,13 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 
+
 class Fitness_Tracker(QWidget):
     def __init__(self):
         super().__init__()
+        self.init_UI()
+
+    def init_UI(self):
         self.setWindowTitle("Fitness Tracker")
         self.resize(1200, 1000)
 
@@ -42,7 +47,7 @@ class Fitness_Tracker(QWidget):
 
         self.add_button = QPushButton("Add")
         self.delete_button = QPushButton("Delete")
-        
+
         self.submit_button = QPushButton("Submit")
         self.clear_button = QPushButton("Clear")
 
@@ -51,9 +56,11 @@ class Fitness_Tracker(QWidget):
 
         self.table = QTableWidget()
         self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["ID", "Date", "Calories", "Distance (KM)", "Description"])
+        self.table.setHorizontalHeaderLabels(
+            ["ID", "Date", "Calories", "Distance (KM)", "Description"]
+        )
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        
+
         # App Layout
         self.master_layout = QHBoxLayout()
         self.column1 = QVBoxLayout()
@@ -100,40 +107,15 @@ class Fitness_Tracker(QWidget):
         self.master_layout.addLayout(self.column1, 25)
         self.master_layout.addLayout(self.column2, 75)
         self.setLayout(self.master_layout)
-        
-        # Event Handlers
+
+        self.event_handler()
+        self.load_table()
+
+    def event_handler(self):
         self.add_button.clicked.connect(self.add_btn)
         self.delete_button.clicked.connect(self.del_btn)
         self.submit_button.clicked.connect(self.submit_btn)
         self.clear_button.clicked.connect(self.clear_btn)
-
-
-        # create and open database then load table into widget
-        self.create_database()
-        self.load_table()
-
-
-    def create_database(self):
-        db = QSqlDatabase.addDatabase("QSQLITE")
-        db.setDatabaseName("fitness_tracker.db")
-
-        if not db.open():
-            print("Error: Failed to connect to the database.")
-            return False
-
-        query = QSqlQuery()
-        query.prepare(
-            """
-            CREATE TABLE IF NOT EXISTS fitness (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                Date TEXT,
-                Calories REAL,
-                Distance REAL,
-                Description TEXT
-            )
-            """
-        )
-        query.exec_()
 
     def load_table(self):
         self.table.setRowCount(0)
@@ -161,9 +143,11 @@ class Fitness_Tracker(QWidget):
             distance = float(self.km_edit.text())
             description = self.desc_edit.text()
         except ValueError:
-            QMessageBox.warning(self, "Warning", "Invalid input. Please enter numeric values.")
+            QMessageBox.warning(
+                self, "Warning", "Invalid input. Please enter numeric values."
+            )
             return
-        
+
         query = QSqlQuery()
         query.prepare(
             """
@@ -171,12 +155,12 @@ class Fitness_Tracker(QWidget):
             VALUES (:date,:cal,:km,:desc)
             """
         )
-        query.bindValue(':date', date)
-        query.bindValue(':cal', calories)
-        query.bindValue(':km', distance)
-        query.bindValue(':desc', description)
+        query.bindValue(":date", date)
+        query.bindValue(":cal", calories)
+        query.bindValue(":km", distance)
+        query.bindValue(":desc", description)
         if query.exec_():
-            #QMessageBox.information(self, "Addition Successful", "Data added successfully")
+            # QMessageBox.information(self, "Addition Successful", "Data added successfully")
             self.load_table()
 
         self.load_table()
@@ -191,7 +175,7 @@ class Fitness_Tracker(QWidget):
             query.prepare("DELETE FROM fitness WHERE id = :ID")
             query.bindValue(":ID", self.table.item(selected_row, 0).text())
             if query.exec_():
-                #QMessageBox.information(self, "Delete Successful", "Data deleted successfully")
+                # QMessageBox.information(self, "Delete Successful", "Data deleted successfully")
                 self.load_table()
 
     def submit_btn(self):
@@ -205,7 +189,29 @@ class Fitness_Tracker(QWidget):
         self.table.setRowCount(0)
         self.figure.clear()
         self.canvas.draw()
-        
+
+
+# Database Instantiation and Connection
+db = QSqlDatabase.addDatabase("QSQLITE")
+db.setDatabaseName("fitness_tracker.db")
+if not db.open():
+    print("Error: Failed to connect to the database.")
+    sys.exit(1)
+query = QSqlQuery()
+query.prepare(
+    """
+    CREATE TABLE IF NOT EXISTS fitness (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        Date TEXT,
+        Calories REAL,
+        Distance REAL,
+        Description TEXT
+    )
+    """
+)
+query.exec_()
+
+
 if __name__ == "__main__":
     app = QApplication([])
     window = Fitness_Tracker()
