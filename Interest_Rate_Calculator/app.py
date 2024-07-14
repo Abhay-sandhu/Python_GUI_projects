@@ -81,8 +81,12 @@ class Interest_Rate_Calculator(QWidget):
         self.calculate.clicked.connect(self.calculate_btn)
         self.reset.clicked.connect(self.reset_btn)
         self.save.clicked.connect(self.save_btn)
+        self.dark_mode.stateChanged.connect(self.toggle_dark_mode)
 
     def plot_interest(self, years, interests):
+        plt.style.use("seaborn-v0_8-darkgrid")
+        plt.tight_layout()
+        plt.subplot()
         plt.plot(years, interests)
         plt.xlabel("Years")
         plt.ylabel("Interest")
@@ -99,6 +103,9 @@ class Interest_Rate_Calculator(QWidget):
         except ValueError:
             QMessageBox.warning(self, "Warning", "Please enter valid numbers.")
             return
+
+        self.interest_model.clear()
+        self.interest_model.setHorizontalHeaderLabels(["Years", "Interest"])
         total = investment
         for year in range(1, years + 1):
             interest = total * (interest_rate / 100.00)
@@ -106,7 +113,6 @@ class Interest_Rate_Calculator(QWidget):
             item_year = QStandardItem(str(year))
             item_interest = QStandardItem(f"{interest:.2f}")
             self.interest_model.appendRow([item_year, item_interest])
-        self.interest_model.setHorizontalHeaderLabels(["Years", "Interest"])
 
         years = list(range(1, years + 1))
         interests = [
@@ -143,6 +149,46 @@ class Interest_Rate_Calculator(QWidget):
             print(f"ERROR: {e}")
         plt.savefig(os.path.join(save_folder, "interest_chart.png"))
         QMessageBox.information(self, "Information", "Interest data and chart saved")
+
+    def toggle_dark_mode(self):
+        self.apply_style()
+
+    def apply_style(self):
+        self.setStyleSheet(
+            """
+                Interest_Rate_Calculator{
+                    background-color: #f0f0f0;
+                    }
+                
+                QPushButton, QLabel, QLineEdit, QCheckBox{
+                    background-color: #f6f6f6;
+                    color: #111111;
+                }
+                
+                QTreeView{
+                    background-color: #f8f8f8;
+                    color: #000000;
+                }
+                """
+        )
+
+        if self.dark_mode.isChecked():
+            self.setStyleSheet(
+                """
+                Interest_Rate_Calculator{
+                    background-color: #222222;
+                    }
+                
+                QPushButton, QLabel, QLineEdit, QCheckBox{
+                    background-color: #333333;
+                    color: #eeeeee;
+                }
+                QTreeView{
+                    background-color: #444444;
+                    color: #eeeeee;
+                }
+                """
+            )
 
 
 # Execute application
